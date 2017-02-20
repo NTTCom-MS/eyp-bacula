@@ -1,0 +1,53 @@
+#
+# puppet managed file
+#
+
+Director {
+  Name = <%= @director_name %>
+  DIRport = <%= @port %>
+  QueryFile = "/etc/bacula/scripts/query.sql"
+  WorkingDirectory = "<%= scope.lookupvar('bacula::params::dir_workdir') %>"
+  Pid Directory = "<%= scope.lookupvar('bacula::params::dir_pid') %>"
+  Maximum Concurrent Jobs = <%= @max_concurrent_jobs %>
+  Password = "<%= @director_password %>"
+  Messages = Daemon
+  <%- if defined?(@diraddr) -%>
+  DirAddress = <%= @diraddr %>
+  <%- end -%>
+}
+
+#
+# email notifications
+#
+Messages {
+  Name = Standard
+  mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<<%= @mail_from %>\>\" -s \"<%= @notification_subject %>\" %r"
+  operatorcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<<%= @mail_from %>\>\" -s \"<%= @operator_subject %>\" %r"
+
+  mail = <%= @mailto_notification %> = all, !skipped
+  operator = <%= @mailto_operator %> = mount
+  console = all, !skipped, !saved
+
+  append = "<%= @bacula_log %>" = all, !skipped
+  catalog = all
+}
+
+#
+# general log
+#
+Messages {
+  Name = Daemon
+  mailcommand = "/usr/sbin/bsmtp -h localhost -f \"\(Bacula\) \<<%= @mail_from %>\>\" -s \"<%= @daemon_subject %>\" %r"
+  mail = <%= @mailto_daemon_notifications %> = all, !skipped
+  console = all, !skipped, !saved
+  append = "<%= @bacula_log %>" = all, !skipped
+}
+
+
+@|"sh -c 'for f in /etc/bacula/bacula-dir/jobtemplates/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/jobs/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/filesets/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/schedules/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/storages/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/clients/*.conf ; do echo @${f} ; done'"
+@|"sh -c 'for f in /etc/bacula/bacula-dir/pools/*.conf ; do echo @${f} ; done'"

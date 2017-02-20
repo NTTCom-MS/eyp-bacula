@@ -7,7 +7,7 @@ class bacula::fd (
                     $service_enable        = true,
                     $port                  = '9102',
                     $fdname                = $::fqdn,
-                    $director_name         = 'bacula-dir',
+                    $director_name         = $::fqdn,
                     $director_password     = 'dmlzY2EgY2F0YWx1bnlhIGxsaXVyZQo',
                     $max_concurrent_jobs   = '20',
                     $plugin_dir            = undef,
