@@ -12,13 +12,22 @@ define bacula::dir::client(
                             $catalog,
                             $addr,
                             $password,
-                            $client_name = $name,
-                            $description = undef,
-                            $port = '9102',
+                            $client_name    = $name,
+                            $description    = undef,
+                            $port           = '9102',
                             $file_retention = '30 days',
-                            $job_retention = '30 days',
-                            $autoprune = true,
+                            $job_retention  = '30 days',
+                            $autoprune      = true,
                           ) {
+
+  if(!defined(Concat::Fragment['bacula-dir.conf client includes']))
+  {
+    concat::fragment{ 'bacula-dir.conf client includes':
+      target  => '/etc/bacula/bacula-dir.conf',
+      order   => '90',
+      content => "@|\"sh -c 'for f in /etc/bacula/bacula-dir/clients/*.conf ; do echo @\${f} ; done'\"\n",
+    }
+  }
 
   $client_name_filename=downcase($client_name)
 

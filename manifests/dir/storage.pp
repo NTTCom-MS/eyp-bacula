@@ -10,15 +10,23 @@
 # }
 define bacula::dir::storage (
                               $password,
+                              $device,
                               $storage_name        = $name,
                               $addr                = '127.0.0.1',
                               $sd_port             = '9103',
-                              $device              = 'File',
                               $media_type          = "File-${::fqdn}",
                               $max_concurrent_jobs = '20',
                               $description         = undef,
                             ) {
-                              
+  if(!defined(Concat::Fragment['bacula-dir.conf storages includes']))
+  {
+    concat::fragment{ 'bacula-dir.conf storages includes':
+      target  => '/etc/bacula/bacula-dir.conf',
+      order   => '90',
+      content => "@|\"sh -c 'for f in /etc/bacula/bacula-dir/storages/*.conf ; do echo @\${f} ; done'\"\n",
+    }
+  }
+
   $storage_name_filename=downcase($storage_name)
 
   file { "/etc/bacula/bacula-dir/storages/${storage_name_filename}.conf":

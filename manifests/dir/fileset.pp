@@ -45,11 +45,21 @@ define bacula::dir::fileset (
                               $fileset_name = $name,
                               $includelist = [ '/var/log', '/etc', '/var/spool/cron' ],
                               $excludelist = [ '/', '/dev', '/sys', '/proc' ],
-                              $signature = 'MD5',
-                              $gzip = false,
-                              $gzip_level = '6',
-                              $onefs = false,
+                              $signature   = 'MD5',
+                              $gzip        = false,
+                              $gzip_level  = '6',
+                              $onefs       = false,
+                              $aclsupport  = false,
                             ) {
+  if(!defined(Concat::Fragment['bacula-dir.conf filesets includes']))
+  {
+    concat::fragment{ 'bacula-dir.conf filesets includes':
+      target  => '/etc/bacula/bacula-dir.conf',
+      order   => '90',
+      content => "@|\"sh -c 'for f in /etc/bacula/bacula-dir/filesets/*.conf ; do echo @\${f} ; done'\"\n",
+    }
+  }
+
   $fileset_name_filename=downcase($fileset_name)
 
   file { "/etc/bacula/bacula-dir/filesets/${fileset_name_filename}.conf":
