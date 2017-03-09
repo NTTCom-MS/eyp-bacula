@@ -3,14 +3,6 @@
 #
 
 #
-# default director
-#
-Director {
-  Name = <%= @director_name %>
-  Password = "<%= @director_password %>"
-}
-
-#
 # "Global" File daemon configuration specifications
 #
 FileDaemon {
@@ -25,10 +17,4 @@ FileDaemon {
   <%- if defined?(@fdaddr) -%>
   FDAddress = <%= @fdaddr %>
   <%- end -%>
-}
-
-# Send all messages except skipped files back to Director
-Messages {
-  Name = Standard
-  director = <%= @director_name %> = all, !skipped, !restored
 }
