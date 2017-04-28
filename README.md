@@ -17,19 +17,16 @@
 
 ## Overview
 
-A one-maybe-two sentence summary of what the module does/what problem it solves.
-This is your 30 second elevator pitch for your module. Consider including
-OS/Puppet version it works with.
+bacula client and server services management
 
 ## Module Description
 
-If applicable, this section should have a brief description of the technology
-the module integrates with and what that integration enables. This section
-should answer the questions: "What does this module *do*?" and "Why would I use
-it?"
+You can manage 4 different services:
 
-If your module has a range of functionality (installation, configuration,
-management, etc.) this is the time to mention it.
+* bacula director: **bacula::dir**
+* bacula storage daemon: **bacula::sd**
+* bacula console: **bacula::bconsole**
+* bacula client (file daemon): **bacula::fd**
 
 ## Setup
 
@@ -141,12 +138,121 @@ bacula::sd::autochanger { 'autochanger1':
 }
 ```
 
+bacula director using hiera:
+
+```yaml
+---
+classes:
+  - bacula::sd
+  - bacula::dir
+  - bacula::bconsole
+
+mysql::mysql_username_uid: 116
+mysql::mysql_username_gid: 125
+
+xtrabackup:
+  'bacula':
+    hour: '3'
+    minute: '0'
+    destination: '/var/mysql/backup'
+    retention: '5'
+
+bacula::dir::director_password: 'passw0rd'
+bacula::sd::director_password: 'passw0rd'
+bacula::bconsole::director_password: 'passw0rd'
+
+baculasddevices:
+  data1:
+    archive_device: '/var/bacula/data1'
+
+baculadircatalogs:
+  mycatalog:
+    dbpassword: 'dbpassw0rd'
+
+baculadirfilesets:
+  log_etc_cron: {}
+  log_etc_cron_xtrabackup:
+    includelist:
+      - '/var/log'
+      - '/etc'
+      - 'var/spool/cron'
+      - '/var/mysql/backup'
+
+baculadirschedules:
+  weekly:
+    run:
+      - 'Full 1st sun at 03:00'
+      - 'Incremental mon-sat at 03:00'
+
+baculadirclients:
+  'EF-BaculaDir01':
+    addr: '127.0.0.1'
+    catalog: mycatalog
+    password: 'passw0rd'
+
+baculadirstorages:
+  localdata:
+    password: 'passw0rd'
+    device: 'data1'
+
+baculadirpools:
+  30days:
+    volume_retention: '30 days'
+    label_format: '30days-'
+
+baculadirjobtemplates:
+  'defaultjob':
+    fileset: 'log_etc_cron'
+    scheduled: weekly
+    storage: localdata
+    pool: '30days'
+  'defaultjobdb':
+    fileset: 'log_etc_cron_xtrabackup'
+    scheduled: weekly
+    storage: localdata
+    pool: '30days'
+
+baculadirjobs:
+  'EF-BaculaDir01':
+    jobdefs: 'defaultjobdb'
+    client: 'EF-BaculaDir01'
+```
+
+bacula client using hiera:
+
+```yaml
+---
+classes:
+  - bacula::fd
+
+bacula::fd::director_password: passw0rd
+```
+
 ## Reference
 
-Here, list the classes, types, providers, facts, etc contained in your module.
-This section should include all of the under-the-hood workings of your module so
-people know what the module is touching on their system but don't need to mess
-with things. (We are working on automating this section!)
+### classes
+
+#### bacula
+
+This class is just a placeholder
+
+#### bacula::dir
+
+#### bacula::sd
+
+#### bacula::fd
+
+#### bacula::bconsole
+
+### defines
+
+#### storage daemon
+
+#### file daemon
+
+##### bacula::fd::director
+
+#### director
 
 ## Limitations
 
