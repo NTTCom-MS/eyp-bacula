@@ -16,6 +16,12 @@ Pool {
   <%- if defined?(@volume_retention) -%>
   Volume Retention = <%= @volume_retention %>
   <%- end -%>
+  <%- if defined?(@file_retention) -%>
+  File Retention = <%= @file_retention %>
+  <%- end -%>
+  <%- if defined?(@job_retention) -%>
+  Job Retention = <%= @job_retention %>
+  <%- end -%>
   <%- if defined?(@maximum_volume_size) -%>
   Maximum Volume Bytes = <%= @maximum_volume_size %>
   <%- end -%>
@@ -24,5 +30,11 @@ Pool {
   <%- end -%>
   <%- if defined?(@label_format) -%>
   Label Format = "<%= @label_format %>"
+  <%- end -%>
+  <%- if defined?(@action_on_purge) -%>
+  Action On Purge = <%= @action_on_purge %>
+  <%- end -%>
+  <%- if defined?(@volume_use_duration) -%>
+  Volume Use Duration = <%= @volume_use_duration %>
   <%- end -%>
 }
